@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Factory Inventory Management System - Backend
 
 This is the backend API for the Factory Inventory Management System, built with Node.js and Express.
@@ -34,3 +35,6 @@ This is the backend API for the Factory Inventory Management System, built with 
 ```bash
 git clone https://github.com/yourusername/factory-inventory-backend.git
 cd factory-inventory-backend
+=======
+# BackEnd-Project
+>>>>>>> 1dedb2512bc72ba958815923eef59c96313c8751
