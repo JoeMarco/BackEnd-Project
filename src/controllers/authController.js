@@ -8,9 +8,10 @@ const login = async (req, res) => {
   console.log(">>> Inside login controller function!");
   try {
     const { username, password } = req.body;
-    
+    const cleanedUsername = username ? username.trim() : username;
+    const cleanedPassword = password ? password.trim() : password;
     // Find user by username
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { username: cleanedUsername } });
     
     if (!user) {
       return res.status(401).json({
@@ -28,7 +29,7 @@ const login = async (req, res) => {
     }
     
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+const isMatch = await bcrypt.compare(cleanedPassword, user.password);
     
     if (!isMatch) {
       return res.status(401).json({
