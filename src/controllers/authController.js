@@ -4,6 +4,7 @@ const { User } = require('../models');
 
 // Login user
 const login = async (req, res) => {
+  console.log(req.body);
   console.log(">>> Inside login controller function!");
   try {
     const { username, password } = req.body;
