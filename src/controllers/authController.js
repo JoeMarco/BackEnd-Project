@@ -143,8 +143,41 @@ const changePassword = async (req, res) => {
   }
 };
 
+// HANYA UNTUK DEBUG/SETUP (Buat hash baru di server)
+const debugResetPassword = async (req, res) => {
+  try {
+    // Gunakan password yang sudah dibersihkan (dari logic login)
+    const { username, password } = req.body;
+    const cleanedUsername = username ? username.trim() : username;
+    const cleanedPassword = password ? password.trim() : password;
+    
+    // Cari pengguna yang ada
+    const user = await User.findOne({ where: { username: cleanedUsername } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    // Buat hash baru menggunakan BCRYPT_ROUNDS dari ENV Railway
+    const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 10);
+    const newHashedPassword = await bcrypt.hash(cleanedPassword, salt);
+    
+    // Update password di database
+    await user.update({ password: newHashedPassword });
+
+    // Kirim respons dengan hash baru
+    res.status(200).json({
+      success: true,
+      message: 'Password has been safely re-hashed and saved.',
+      new_hash: newHashedPassword 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   login,
   getMe,
-  changePassword
+  changePassword,
+  debugResetPassword 
 };
