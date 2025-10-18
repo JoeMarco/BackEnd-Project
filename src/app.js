@@ -51,6 +51,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+console.log(">>> Setting up API routes...");
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/materials', materialRoutes);
@@ -63,11 +65,14 @@ app.use('/api/work-orders', workOrderRoutes);
 app.use('/api/sales-orders', salesRoutes);
 app.use('/api/stock', stockRoutes);
 
+console.log(">>> API routes set up.");
+
 // Error handling middleware
 app.use(errorHandler);
 
 // 404 handler
 app.use('*', (req, res) => {
+  console.log(`>>> 404 Handler reached for: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     success: false,
     message: 'API endpoint not found'

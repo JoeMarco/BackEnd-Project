@@ -4,7 +4,10 @@ const { authenticate } = require('../middleware/auth');
 const { validateUser } = require('../middleware/validation');
 const { login, getMe, changePassword } = require('../controllers/authController');
 
+console.log(">>> Loading src/routes/auth.js ...");
+
 // Login
+console.log(">>> Defining POST /login route...");
 router.post('/login', login);
 
 // Get current user
