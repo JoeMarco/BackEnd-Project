@@ -164,7 +164,7 @@ const debugResetPassword = async (req, res) => {
     // Update password di database
     await user.update({ password: newHashedPassword });
 
-    // Kirim respons dengan hash baru
+    // Kirim respons
     res.status(200).json({
       success: true,
       message: 'Password has been safely re-hashed and saved.',

@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { login, getMe, changePassword, debugResetPassword } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 const { validateUser } = require('../middleware/validation');
-const { login, getMe, changePassword } = require('../controllers/authController');
+const { login, getMe, changePassword, debugResetPassword } = require('../controllers/authController');
 
 console.log(">>> Loading src/routes/auth.js ...");
 
