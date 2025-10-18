@@ -1,5 +1,5 @@
 const { StockLog, RawMaterial, Product } = require('../models');
-const { paginationMeta, buildSearchQuery, updateStock, logStockMovement } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, updateStock, logStockMovement } = require('../utils/helpers');
 const { sequelize } = require('../utils/database');
 
 // Get all stock logs with pagination and search

@@ -1,5 +1,5 @@
 const { RawMaterial, Supplier } = require('../models');
-const { paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
 const { sequelize } = require('../utils/database');
 
 // Get all materials with pagination and search

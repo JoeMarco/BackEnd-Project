@@ -1,5 +1,5 @@
 const { PurchaseOrder, POItem, Supplier, RawMaterial, User } = require('../models');
-const { paginationMeta, buildSearchQuery, generateOrderNumber, updateStock, logStockMovement } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, generateOrderNumber, updateStock, logStockMovement } = require('../utils/helpers');
 const { sequelize } = require('../utils/database');
 
 // Get all purchase orders with pagination and search

@@ -1,5 +1,5 @@
 const { WorkOrder, Product, User } = require('../models');
-const { paginationMeta, buildSearchQuery, generateOrderNumber, calculateBOMRequirements, updateStock, logStockMovement } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, generateOrderNumber, calculateBOMRequirements, updateStock, logStockMovement } = require('../utils/helpers');
 const { sequelize } = require('../utils/database');
 
 // Get all work orders with pagination and search

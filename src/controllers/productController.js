@@ -1,5 +1,5 @@
 const { Product } = require('../models');
-const { paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
 const { sequelize } = require('../utils/database');
 
 // Get all products with pagination and search

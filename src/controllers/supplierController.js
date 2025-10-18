@@ -1,5 +1,5 @@
 const { Supplier } = require('../models');
-const { paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
 
 // Get all suppliers with pagination and search
 const getSuppliers = async (req, res) => {

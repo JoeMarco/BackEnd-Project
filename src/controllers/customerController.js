@@ -1,5 +1,5 @@
 const { Customer } = require('../models');
-const { paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, exportToExcel } = require('../utils/helpers');
 
 // Get all customers with pagination and search
 const getCustomers = async (req, res) => {

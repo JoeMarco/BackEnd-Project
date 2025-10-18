@@ -1,5 +1,5 @@
 const { SalesOrder, SOItem, Customer, Product, User } = require('../models');
-const { paginationMeta, buildSearchQuery, generateOrderNumber, updateStock, logStockMovement } = require('../utils/helpers');
+const { paginate, paginationMeta, buildSearchQuery, generateOrderNumber, updateStock, logStockMovement } = require('../utils/helpers');
 const { sequelize } = require('../utils/database');
 
 // Get all sales orders with pagination and search
