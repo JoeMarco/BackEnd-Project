@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-// Definisi struktur yang diharapkan
+// Definisi struktur
 const expectedStructure = {
   'public': {
     files: ['index.html'],
@@ -94,7 +94,7 @@ const expectedStructure = {
   }
 };
 
-// Root files yang diharapkan
+// Root files
 const rootFiles = [
   'package.json',
   'README.md',
