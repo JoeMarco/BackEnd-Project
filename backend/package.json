@@ -12,6 +12,8 @@
     "start:debug": "node test-server-debug.js",
     "dev": "nodemon src/server.js",
     "dev:debug": "nodemon test-server-debug.js",
+    "railway:postdeploy": "node railway-postdeploy.js",
+    "railway:start": "npm run railway:postdeploy && npm start",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:unit": "jest --testPathPattern=unit",
