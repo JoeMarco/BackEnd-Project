@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend UI for Factory Inventory Management System",
   "private": true,
+  "homepage": ".",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
@@ -104,3 +105,4 @@
   },
   "proxy": null
 }
+
