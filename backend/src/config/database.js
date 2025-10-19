@@ -56,11 +56,11 @@ module.exports = {
     },
   },
   production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
+    username: process.env.MYSQLUSER || process.env.DB_USER,
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD,
+    database: process.env.MYSQLDATABASE || process.env.DB_NAME,
+    host: process.env.MYSQLHOST || process.env.DB_HOST,
+    port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || 'mysql',
     timezone: process.env.DB_TIMEZONE || '+07:00',
     logging: false,
@@ -78,10 +78,10 @@ module.exports = {
       updatedAt: 'updated_at',
     },
     dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? {
+      ssl: {
         require: true,
         rejectUnauthorized: false,
-      } : false,
+      },
     },
   },
 };
