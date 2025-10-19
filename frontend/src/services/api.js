@@ -2,19 +2,34 @@ import axios from 'axios';
 import { message } from 'antd';
 import { storageService } from './storage';
 
-console.log('=== INITIALIZING API SERVICE ===');
-console.log('Base URL:', process.env.REACT_APP_API_URL || 'http://localhost:5000/api');
+// Determine if we're in development or production
+const isDevelopment = process.env.NODE_ENV === 'development';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_TIMEOUT = parseInt(process.env.REACT_APP_API_TIMEOUT) || 30000;
+
+// Only log in development
+const log = {
+  info: (...args) => isDevelopment && console.log(...args),
+  warn: (...args) => isDevelopment && console.warn(...args),
+  error: (...args) => console.error(...args), // Always log errors
+};
+
+log.info('=== INITIALIZING API SERVICE ===');
+log.info('Environment:', process.env.NODE_ENV);
+log.info('Base URL:', API_BASE_URL);
+log.info('Timeout:', API_TIMEOUT);
 
 // Create axios instance
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
-  timeout: 10000,
+  baseURL: API_BASE_URL,
+  timeout: API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: false // Set to true if using cookies for auth
 });
 
-console.log('✓ Axios instance created');
+log.info('✓ Axios instance created');
 
 // Flag to prevent multiple refresh attempts
 let isRefreshing = false;
@@ -34,27 +49,31 @@ const processQueue = (error, token = null) => {
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    console.log(`=== API REQUEST: ${config.method?.toUpperCase()} ${config.url} ===`);
-    console.log('Request config:', {
-      method: config.method,
-      url: config.url,
-      baseURL: config.baseURL,
-      params: config.params,
-      data: config.data
-    });
+    log.info(`=== API REQUEST: ${config.method?.toUpperCase()} ${config.url} ===`);
+    
+    if (isDevelopment) {
+      log.info('Request config:', {
+        method: config.method,
+        url: config.url,
+        baseURL: config.baseURL,
+        params: config.params,
+        data: config.data
+      });
+    }
     
     const token = storageService.getToken();
     if (token) {
-      console.log('✓ Auth token attached');
+      log.info('✓ Auth token attached');
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      console.log('⚠ No auth token found');
+      log.info('⚠ No auth token found');
     }
+    
     return config;
   },
   (error) => {
-    console.error('=== REQUEST INTERCEPTOR ERROR ===');
-    console.error('Error:', error);
+    log.error('=== REQUEST INTERCEPTOR ERROR ===');
+    log.error('Error:', error);
     return Promise.reject(error);
   }
 );
@@ -62,24 +81,30 @@ api.interceptors.request.use(
 // Response interceptor to handle token refresh and common errors
 api.interceptors.response.use(
   (response) => {
-    console.log(`=== API RESPONSE SUCCESS: ${response.config.method?.toUpperCase()} ${response.config.url} ===`);
-    console.log('Status:', response.status);
-    console.log('Data:', response.data);
+    log.info(`=== API RESPONSE SUCCESS: ${response.config.method?.toUpperCase()} ${response.config.url} ===`);
+    log.info('Status:', response.status);
+    
+    if (isDevelopment) {
+      log.info('Data:', response.data);
+    }
+    
     return response.data;
   },
   async (error) => {
-    console.error('=== API RESPONSE ERROR ===');
+    log.error('=== API RESPONSE ERROR ===');
     const originalRequest = error.config;
     
     if (error.response) {
       const { status, data } = error.response;
-      console.error('Error Status:', status);
-      console.error('Error Data:', data);
+      log.error('Error Status:', status);
+      log.error('Error Data:', data);
+      
       if (data.errors && data.errors.length > 0) {
-        console.error('Validation Errors:', data.errors);
+        log.error('Validation Errors:', data.errors);
       }
-      console.error('Request URL:', originalRequest?.url);
-      console.error('Request Method:', originalRequest?.method);
+      
+      log.error('Request URL:', originalRequest?.url);
+      log.error('Request Method:', originalRequest?.method);
       
       // Handle 401 errors - try to refresh token
       if (status === 401 && !originalRequest._retry) {
@@ -104,7 +129,7 @@ api.interceptors.response.use(
         
         if (!refreshToken) {
           // No refresh token available, redirect to login
-          console.warn('⚠ No refresh token available, redirecting to login');
+          log.warn('⚠ No refresh token available, redirecting to login');
           storageService.clear();
           window.location.href = '/login';
           message.error('Session expired. Please login again.');
@@ -112,15 +137,22 @@ api.interceptors.response.use(
         }
 
         try {
-          console.log('=== ATTEMPTING TOKEN REFRESH ===');
+          log.info('=== ATTEMPTING TOKEN REFRESH ===');
+          
           // Attempt to refresh the token
           const response = await axios.post(
-            `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
-            { refreshToken }
+            `${API_BASE_URL}/auth/refresh`,
+            { refreshToken },
+            {
+              timeout: API_TIMEOUT,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
           );
 
           if (response.data.success) {
-            console.log('✓ Token refresh successful');
+            log.info('✓ Token refresh successful');
             const { token, refreshToken: newRefreshToken } = response.data.data;
             
             // Update stored tokens
@@ -133,14 +165,15 @@ api.interceptors.response.use(
             
             // Process queued requests
             processQueue(null, token);
-            console.log(`✓ Retrying original request: ${originalRequest.url}`);
+            log.info(`✓ Retrying original request: ${originalRequest.url}`);
             
             // Retry the original request
             return api(originalRequest);
           }
         } catch (refreshError) {
-          console.error('=== TOKEN REFRESH FAILED ===');
-          console.error('Refresh Error:', refreshError);
+          log.error('=== TOKEN REFRESH FAILED ===');
+          log.error('Refresh Error:', refreshError);
+          
           // Refresh failed, logout user
           processQueue(refreshError, null);
           storageService.clear();
@@ -151,34 +184,58 @@ api.interceptors.response.use(
           isRefreshing = false;
         }
       } else if (status === 403) {
-        console.warn('⚠ 403 Forbidden - Permission denied');
+        log.warn('⚠ 403 Forbidden - Permission denied');
         message.error('You do not have permission to perform this action.');
       } else if (status >= 500) {
-        console.error('❌ Server error:', status);
+        log.error('❌ Server error:', status);
         message.error('Server error. Please try again later.');
       } else if (status === 401 && originalRequest._retry) {
-        console.warn('⚠ Token refresh failed, logging out');
+        log.warn('⚠ Token refresh failed, logging out');
         // Token refresh already failed, logout
         storageService.clear();
         window.location.href = '/login';
         message.error('Session expired. Please login again.');
       } else {
-        console.error('❌ API Error:', data.message || 'Unknown error');
+        log.error('❌ API Error:', data.message || 'Unknown error');
         message.error(data.message || 'An error occurred');
       }
     } else if (error.request) {
-      console.error('=== NETWORK ERROR ===');
-      console.error('Request made but no response received');
-      console.error('Request:', error.request);
-      message.error('Network error. Please check your connection.');
+      log.error('=== NETWORK ERROR ===');
+      log.error('Request made but no response received');
+      
+      if (isDevelopment) {
+        log.error('Request:', error.request);
+      }
+      
+      // Check if it's a timeout
+      if (error.code === 'ECONNABORTED') {
+        message.error('Request timeout. Please try again.');
+      } else {
+        message.error('Network error. Please check your connection.');
+      }
     } else {
-      console.error('=== REQUEST SETUP ERROR ===');
-      console.error('Error:', error.message);
+      log.error('=== REQUEST SETUP ERROR ===');
+      log.error('Error:', error.message);
       message.error('An error occurred. Please try again.');
     }
     
     return Promise.reject(error);
   }
 );
+
+// Health check function (optional, useful for debugging)
+export const checkApiHealth = async () => {
+  try {
+    log.info('=== CHECKING API HEALTH ===');
+    const response = await axios.get(`${API_BASE_URL}/health`, {
+      timeout: 5000
+    });
+    log.info('✓ API is healthy:', response.data);
+    return true;
+  } catch (error) {
+    log.error('❌ API health check failed:', error.message);
+    return false;
+  }
+};
 
 export default api;
